@@ -1,0 +1,24 @@
+var formatDuration = function (sec) {
+    var h = Math.floor(sec / 3600)
+    sec -= 3600 * h
+    var m = Math.floor(sec / 60)
+    sec -= 60 * m
+    var s = Math.floor(sec)
+
+    return [formatNumber(h),formatNumber(m), formatNumber(s)].join(':')
+}
+
+var formatFee = function (cents) {
+    return (cents / 100).toFixed(2)
+}
+
+var formatNumber = function (n) {
+    var s = n.toString()
+    return s[1] ? s : '0' + s
+}
+
+
+module.exports = {
+    formatDuration: formatDuration,
+    formatFee: formatFee,
+}

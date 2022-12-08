@@ -1,0 +1,44 @@
+<!-- page-meta 只能是页面内的第一个节点 -->
+<wxs src="index.wxs" module="m1"></wxs>
+<view class="flex flex-col justify-center items-center pt-10">
+  <view class="w-80 h-56 relative flex flex-col justify-center items-center" wx:if="{{!licImgURL}}" bindtap="onUploadLic">
+    <image class="absolute w-full h-full opacity-20" src="/resources/lic.png"></image>
+    <van-icon class="opacity-30" name="photograph" size="120rpx" />
+    <view class="absolute -bottom-8">请上传驾驶证照片</view>
+  </view>
+  <block wx:else>
+    <view class="relative w-80 h-56 flex flex-col justify-center items-center" bindtap="onUploadLic">
+      <image class="w-full h-full" src="{{licImgURL}}"></image>
+      <van-icon wx:if="{{m1.canModify(state)}}" class="absolute opacity-30" name="photograph" size="120rpx" />
+    </view>
+    <view class="w-80 mt-10">
+      <view wx:if="{{state==='PENDING'}}" class="opacity-70 h-8 mx-4 bg-yellow-400 text-lg text-gray-100 shadow-lg flex justify-center items-center">
+        审查中
+      </view>
+      <view wx:if="{{state==='VERIFIED'}}" class="opacity-70 h-8 mx-4 bg-green-400 text-lg text-gray-100 shadow-lg flex justify-center items-center">
+        审查通过
+      </view>
+      <view wx:if="{{state==='UNVERIFIED'}}" class="opacity-70 h-8 mx-4 bg-red-400 text-lg text-gray-100 shadow-lg flex justify-center items-center">
+        审查失败
+      </view>
+      <van-cell-group inset>
+        <van-field model:value="{{ licNo }}" disabled="{{!m1.canModify(state)}}" required input-align="right" clearable label="驾驶证号" placeholder="请输入驾驶证号" />
+        <van-field model:value="{{ name }}" disabled="{{!m1.canModify(state)}}" input-align="right" border="{{false}}" required clearable label="姓名" placeholder="请输入姓名" />
+        <van-cell title="性别" is-link bind:click="onGenderPickerShow" value="{{gender.items[gender.genderIndex]}}" />
+        <van-cell title="日期" is-link bind:click="onDatePickerShow" value="{{m1.formatDate(date.curDate)}}" />
+      </van-cell-group>
+    </view>
+    <button wx:if="{{state==='UNSUBMITTED'}}" bindtap="onSubmit" hover-class="bg-indigo-500" class="w-60 h-10 rounded-xl mt-10 bg-indigo-400 text-lg text-gray-100 shadow-lg flex justify-center items-center">
+      递交审查
+    </button>
+    <button wx:if="{{state==='UNVERIFIED'}}" bindtap="onSubmit" hover-class="bg-gray-100" class="w-60 h-10 rounded-xl mt-10 bg-gray-50 text-lg shadow-lg flex justify-center items-center">
+      重新审查
+    </button>
+    <van-popup show="{{ gender.showGenderPicker }}" position="bottom" bind:close="onGenderPickerClose">
+      <van-picker show-toolbar title="选择性别" columns="{{ gender.items }}" bind:confirm="onGenderConfirm" bind:cancel="onGenderPickerClose" />
+    </van-popup>
+    <van-popup show="{{ date.showDatePicker }}" position="bottom" bind:close="onDatePickerClose">
+      <van-datetime-picker type="date" value="{{ date.curDate }}" min-date="{{ date.minDate }}" max-date="{{ date.maxDate }}" bind:confirm="onDateConfirm" bind:cancel="onDatePickerClose" />
+    </van-popup>
+  </block>
+</view>

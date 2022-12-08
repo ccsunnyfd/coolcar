@@ -1,0 +1,12 @@
+<view class="mask flex justify-between items-center {{showModal?'' : 'hidden' }}">
+  <view class="relative mx-auto w-64 max-w-full bg-gray-100 rounded-md overflow-hidden">
+    <view class="bg-white-500 flex justify-center items-center py-4">
+      <view class="content">{{title}}</view>
+    </view>
+    <view class="py-4 flex justify-center items-center">{{contents}}</view>
+    <view class="bg-white-500 flex flex-row justify-between items-center px-6 py-4">
+        <button wx:if="{{showCancel}}" class="cu-btn w-24 border-green-500 text-green-500" bindtap="onCancel">取消</button>
+        <button class="cu-btn w-24 bg-green-500 margin-left" bindtap="onOK">确定</button>
+    </view>
+  </view>
+</view>

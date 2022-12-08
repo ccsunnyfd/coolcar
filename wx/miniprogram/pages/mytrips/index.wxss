@@ -1,0 +1,5 @@
+.text-price::before {
+	content: "¥";
+	font-size: 80%;
+	margin-right: 1em;
+}

@@ -1,0 +1,23 @@
+var formatDate = function (timestamp) {
+    var d = getDate(timestamp)
+    var year = formatNumber(d.getFullYear())
+    var month = formatNumber(d.getMonth() + 1)
+    var day = formatNumber(d.getDate())
+
+    return (
+        [year, month, day].join('/')
+    )
+}
+var formatNumber = function (n) {
+    var s = n.toString()
+    return s[1] ? s : '0' + s
+}
+
+var canModify = function (state) {
+    return state==='UNSUBMITTED'||state==='UNVERIFIED'
+}
+
+module.exports = {
+    formatDate: formatDate,
+    canModify: canModify,
+}

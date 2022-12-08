@@ -1,0 +1,14 @@
+<wxs src="index.wxs" module="m1"></wxs>
+<view class="w-full h-full flex justify-start items-center flex-col-reverse">
+    <view class="h-24 w-full p-4 mb-4 flex flex-col justify-center items-center">
+        <view class="w-24 flex justify-between items-center">
+            <van-icon name="clock" color="orange" size="25" />
+            <view>{{m1.formatDuration(elapsed)}}</view>
+        </view>
+        <view class="p-2 text-sm">费用:  {{m1.formatFee(fee)}}元</view>
+        <button class="w-72 h-8 bg-red-500 text-gray-50 flex justify-center items-center shadow-lg" loading="{{loading}}" disabled="{{disabled}}" bindtap="onEndTripTap">
+            结束行程
+        </button>
+    </view>
+    <map class="w-full flex-grow" id="map" latitude="{{location.latitude}}" longitude="{{location.longitude}}" scale="{{scale}}" show-location></map>
+</view>

@@ -1,0 +1,110 @@
+syntax = "proto3";
+package coolcar;
+option go_package="coolcar/proto/gen/go;trippb";
+
+message Location {
+    double latitude = 1;
+    double longitude = 2;
+}
+
+enum TripStatus {
+    TS_NOT_SPECIFIED = 0;
+    NOT_STARTED = 1;
+    IN_PROGRESS = 2;
+    FINISHED = 3;
+    PAID = 4;
+}
+
+message Trip {
+    string start = 1;
+    Location start_pos = 5;
+    repeated Location path_locations = 7;
+    string end = 2;
+    Location end_pos = 6;
+    int32 duration_sec = 3;
+    int32 fee_cent = 4;
+    TripStatus status = 8;
+    // bool isPromotionTrip = 9;
+    // bool isFromGuestUser = 10;
+}
+
+service TripService {
+//   rpc ListTrips(ListTripsRequest) returns (ListTripsResponse) {
+//     option (google.api.http) = {
+//       get: "/v1alpha1/Trips"
+//     };
+//   }
+
+  rpc GetTrip(GetTripRequest) returns (GetTripResponse);
+
+//   rpc CreateTrip(CreateTripRequest) returns (Trip) {
+//     option (google.api.http) = {
+//       post: "/v1alpha1/Trips"
+//       body: "Trip"
+//     };
+//   }
+
+//   rpc UpdateTrip(UpdateTripRequest) returns (Trip) {
+//     option (google.api.http) = {
+//       patch: "/v1alpha1/{Trip.name=Trips/*}"
+//       body: "Trip"
+//     };
+//   }
+
+//   rpc DeleteTrip(DeleteTripRequest) returns (google.protobuf.Empty) {
+//     option (google.api.http) = {
+//       delete: "/v1alpha1/{name=Trips/*}"
+//     };
+//   }
+}
+
+// message ListTripsRequest {
+//   // The parent resource name, for example, "shelves/shelf1"
+//   string parent = 1;
+
+//   // The maximum number of items to return.
+//   int32 page_size = 2;
+
+//   // The next_page_token value returned from a previous List request, if any.
+//   string page_token = 3;
+// }
+
+// message ListTripsResponse {
+//   // The field name should match the noun "Trip" in the method name.
+//   // There will be a maximum number of items returned based on the page_size field in the request.
+//   repeated Trip Trips = 1;
+
+//   // Token to retrieve the next page of results, or empty if there are no more results in the list.
+//   string next_page_token = 2;
+// }
+
+message GetTripRequest {
+  string id = 1;
+}
+
+message GetTripResponse {
+    string id = 1;
+    Trip trip = 2;
+}
+
+// message CreateTripRequest {
+//   string parent = 1;
+
+//   string Trip_id = 2;
+
+//   Trip Trip = 3;
+// }
+
+// message UpdateTripRequest {
+//   // The Trip resource which replaces the resource on the server.
+//   Trip Trip = 1;
+
+//   // The update mask applies to the resource. For the `FieldMask` definition,
+//   // see https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask
+//   FieldMask update_mask = 2;
+// }
+
+// message DeleteTripRequest {
+//   // The resource name of the Trip to be deleted.
+//   string name = 1;
+// }

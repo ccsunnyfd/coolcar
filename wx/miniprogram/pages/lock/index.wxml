@@ -1,0 +1,25 @@
+<!-- pages/lock/index.wxml -->
+<view class="flex flex-col-reverse justify-between items-center h-full">
+    <view bindtap="onUnlockTap" class="w-80 h-8 mb-24 flex items-center justify-center rounded-sm bg-gray-500 text-white opacity-90">
+        立即开锁
+    </view>
+    <view class="flex flex-grow flex-col justify-between items-center">
+        <view class="w-80 h-64 pt-10 flex flex-col justify-center items-center">
+            <image class="w-full h-full" mode="aspectFill" src="{{licImgURL}}"></image>
+            <view class="mt-8 flex flex-col justify-center items-center">
+                <view>驾驶安全是用户的责任</view>
+                <view>请将车辆停放在停车位内</view>
+            </view>
+        </view>
+        <view class="h-28 pb-10 flex flex-col justify-between items-center">
+            <button wx:if="{{!avatarUrl}}" class="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
+                <van-icon name="user-o" size="36" />
+            </button>
+            <view wx:else class="w-32 h-16 flex items-center justify-between">
+                <image class="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center" src="{{avatarUrl}}"></image>
+                <van-switch size="20" active-color="#00CED1" inactive-color="#F0F8FF" checked="{{ shareLocation }}" bind:change="onShareLocationChange" />
+            </view>
+            <view class="text-gray-800">实时展示我的头像</view>
+        </view>
+    </view>
+</view>

@@ -1,0 +1,23 @@
+{
+  "name": "miniprogram-ts-less-quickstart",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "compile": "./node_modules/typescript/bin/tsc",
+    "tsc": "node ./node_modules/typescript/lib/tsc.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "",
+  "devDependencies": {
+    "@dcasia/mini-program-tailwind-webpack-plugin": "^1.5.6",
+    "miniprogram-api-typings": "^3.6.0",
+    "protobufjs-cli": "^1.0.2",
+    "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "@vant/weapp": "^1.10.8",
+    "camelcase-keys": "^8.0.2",
+    "protobufjs": "^7.1.2"
+  }
+}
