@@ -85,7 +85,7 @@ project.private.config.json
 # js文件（typescript开发环境）#
 **/wx/miniprogram/**/*.js
 # 惊叹号排除 #
-!**/wx/miniprogram/service/proto_gen/*.js
+!**/wx/miniprogram/service/proto_gen/**/*.js
 
 
 # 前端工具链 #
@@ -94,3 +94,7 @@ project.private.config.json
 node_modules/
 miniprogram_npm/
 package-lock.json
+
+# 敏感文件 #
+private.key
+appsecret.key
