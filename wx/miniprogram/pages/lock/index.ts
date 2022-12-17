@@ -1,3 +1,4 @@
+import { TripService } from "../../service/trip"
 import { constant } from "../../utils/constant"
 import { routing } from "../../utils/routing"
 
@@ -43,6 +44,12 @@ Page({
           avatarUrl: this.data.shareLocation ? this.data.avatarUrl : '',
           carID: '',
         })
+
+        TripService.CreateTrip({
+          start: 'abc',
+        })
+
+        return
 
         const tripID = 'trip456'
 
