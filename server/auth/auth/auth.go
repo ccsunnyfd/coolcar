@@ -31,7 +31,7 @@ type TokenGenerator interface {
 }
 
 func (s *Service) Login(c context.Context, req *authpb.LoginRequest) (*authpb.LoginResponse, error) {
-	openID, err := s.OpenIDResolver.Resolve(req.Code)
+	openID, err := s.Resolve(req.Code)
 	if err != nil {
 		return nil, status.Errorf(codes.Unavailable, "cannot resolve openid: %v", err)
 	}
@@ -42,7 +42,7 @@ func (s *Service) Login(c context.Context, req *authpb.LoginRequest) (*authpb.Lo
 		return nil, status.Error(codes.Internal, "")
 	}
 
-	tkn, err := s.GenerateToken(accountID, s.TokenExpire)
+	tkn, err := s.GenerateToken(accountID.String(), s.TokenExpire)
 	if err != nil {
 		s.Logger.Error("cannot generate token", zap.Error(err))
 		return nil, status.Error(codes.Internal, "")

@@ -3,6 +3,7 @@ import { constant } from "../../utils/constant"
 import { routing } from "../../utils/routing"
 
 Page({
+  carID: '',
   data: {
     licImgURL: '/resources/sedan.png' as string,
     avatarUrl: '' as string,
@@ -10,7 +11,7 @@ Page({
   },
   onLoad(opt: Record<'car_id', string>) {
     const o: routing.LockOpts = opt
-    console.log('unlocking car ', o.car_id)
+    this.carID = o.car_id
     const shareLocation = wx.getStorageSync(constant.shareLocationKey)
     const avatarUrl = wx.getStorageSync(constant.avatarUrlKey)
     this.setData({
@@ -35,7 +36,7 @@ Page({
   onUnlockTap() {
     wx.getLocation({
       type: 'gcj02',
-      success: loc => {
+      success:  async loc => {
         console.log('starting a trip', {
           location: {
             longitude: loc.longitude,
@@ -45,13 +46,23 @@ Page({
           carID: '',
         })
 
-        TripService.CreateTrip({
-          start: 'abc',
+        if (!this.carID) {
+          console.error('no carID specified')
+          return
+        }
+        const trip = await TripService.CreateTrip({
+          start: {
+            longitude: loc.longitude,
+            latitude: loc.latitude,
+          },
+          carId: this.carID,
         })
 
-        return
-
-        const tripID = 'trip456'
+        if (!trip.id) {
+          console.error('no tripID in response', trip)
+          return
+        }
+        
 
         wx.showLoading({
           title: '开锁中...',
@@ -60,7 +71,7 @@ Page({
         setTimeout(() => {
           wx.redirectTo({
             url: routing.driving({
-              trip_id: tripID,
+              trip_id: trip.id!,
             }),
             complete: () => {
               wx.hideLoading()

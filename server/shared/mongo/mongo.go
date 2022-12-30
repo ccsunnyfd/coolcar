@@ -1,15 +1,34 @@
-package mgo
+package mgutil
 
 import (
+	"time"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-const IDField = "_id"
+// Common field names.
+const (
+	IDFieldName        = "_id"
+	UpdatedAtFieldName = "updatedat"
+)
 
-// ObjID defines the object id field.
-type ObjID struct {
+// IDField defines the object id field.
+type IDField struct {
 	ID primitive.ObjectID `bson:"_id"`
+}
+
+// UpdatedAtField defines the upatedat field.
+type UpdatedAtField struct {
+	UpdatedAt int64 `bson:"updatedat"`
+}
+
+// NewObjID generates a new object id.
+var NewObjID = primitive.NewObjectID
+
+// UpdatedAt returns a value suitable for UpdatedAt field.
+var UpdatedAt = func() int64 {
+	return time.Now().UnixNano()
 }
 
 // Set returns a $set update document.

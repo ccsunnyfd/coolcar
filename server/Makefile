@@ -33,7 +33,7 @@ gateway:
 pbjs_pre1: pbtsmkdir
 	$(PBTS_BIN_DIR)/pbjs -t static \
             -w es6 $(PROTO_PATH)/${DOMAIN}.proto \
-            --no-create --no-encode --no-decode --no-verify --no-delimited -o \
+            --no-create --no-encode --no-decode --no-verify --no-delimited --force-number -o \
             $(PBTS_OUT_DIR)/${DOMAIN}/${DOMAIN}_pb_tmp.js
 
 .PHONY: pbjs_pre2
@@ -49,6 +49,9 @@ pbjs:   pbjs_pre1 pbjs_pre2
 pbts: pbjs
 	$(PBTS_BIN_DIR)/pbts -o $(PBTS_OUT_DIR)/${DOMAIN}/${DOMAIN}_pb.d.ts \
             $(PBTS_OUT_DIR)/${DOMAIN}/${DOMAIN}_pb.js
+
+.PHONY: rpc
+rpc: grpc gateway pbjs pbts
 
 .PHONY: mongo
 mongo:

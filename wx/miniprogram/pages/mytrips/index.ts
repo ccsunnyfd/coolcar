@@ -1,3 +1,5 @@
+import { rental } from "../../service/proto_gen/rental/rental_pb"
+import { TripService } from "../../service/trip"
 import { constant } from "../../utils/constant"
 import { routing } from "../../utils/routing"
 
@@ -61,7 +63,7 @@ Page({
         promotionID: 4,
       },
     ],
-    avatarURL: '',
+    avatarUrl: '',
     tripsHeight: 0,
     navCount: 0,
     mainItems: [] as MainItem[],
@@ -71,12 +73,15 @@ Page({
     navScroll: '',
   },
 
-  onLoad() {
+  async onLoad() {
+    this.populateTrips()
+
+    await TripService.GetTrips(rental.v1.TripStatus.FINISHED)
+
     const avatarUrl = wx.getStorageSync(constant.avatarUrlKey)
     this.setData({
       avatarUrl: avatarUrl || '',
     })
-    this.populateTrips()
   },
 
   onReady() {

@@ -5,31 +5,29 @@ import (
 	"os"
 	"testing"
 
-	mgo "coolcar/shared/mongo"
+	"coolcar/shared/id"
+	mgutil "coolcar/shared/mongo"
+	"coolcar/shared/mongo/objid"
 	"coolcar/shared/mongo/testing"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
-
-var mongoURI string
 
 func TestResolveAccountID(t *testing.T) {
 	c := context.Background()
-	mc, err := mongo.Connect(c, options.Client().ApplyURI(mongoURI))
+	mc, err := mongotesting.NewClient(c)
 	if err != nil {
 		t.Fatalf("cannot connect mongodb: %v", err)
 	}
 	m := NewMongo(mc.Database("coolcar"))
 	_, err = m.col.InsertMany(c, []interface{} {
 		bson.M{
-			mgo.IDField: mustObjID("6396f039ba6600ddab817643"),
+			mgutil.IDFieldName: objid.MustFromID(id.AccountID("6396f039ba6600ddab817643")),
 			openIDField: "openid_1",
 		},
 		bson.M{
-			mgo.IDField: mustObjID("6396f039ba6600ddab817644"),
+			mgutil.IDFieldName: objid.MustFromID(id.AccountID("6396f039ba6600ddab817644")),
 			openIDField: "openid_2",
 		},
 	})
@@ -37,8 +35,8 @@ func TestResolveAccountID(t *testing.T) {
 		t.Fatalf("cannot insert initial values: %v", err)
 	}
 
-	m.newObjID = func() primitive.ObjectID {
-		return mustObjID("6396f039ba6600ddab817645")
+	mgutil.NewObjID = func() primitive.ObjectID {
+		return objid.MustFromID(id.AccountID("6396f039ba6600ddab817645"))
 	}
 
 	cases := []struct {
@@ -70,7 +68,7 @@ func TestResolveAccountID(t *testing.T) {
 				t.Errorf("failed resolve account id for %q: %v", cc.openID, err)
 			}
 
-			if id != cc.want {
+			if id.String() != cc.want {
 				t.Errorf("resolve account id: want: %q, got: %q", cc.want, id)
 			}
 		})
@@ -78,13 +76,5 @@ func TestResolveAccountID(t *testing.T) {
 }
 
 func TestMain(m *testing.M) {
-	os.Exit(mongotesting.RunWithMongoInDocker(m, &mongoURI))
-}
-
-func mustObjID(hex string) primitive.ObjectID {
-	objID, err := primitive.ObjectIDFromHex(hex)
-	if err != nil {
-		panic(err)
-	}
-	return objID
+	os.Exit(mongotesting.RunWithMongoInDocker(m))
 }

@@ -10,6 +10,8 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
@@ -17,9 +19,13 @@ const (
 	containerPort = "27017/tcp"
 )
 
+var mongoURI string
+
+const defaultMongoURI = "mongodb://localhost:27017"
+
 // RunWithMongoInDocker runs the tests with
 // a mongodb instance in a docker container.
-func RunWithMongoInDocker(m *testing.M, mongoURI *string) int {
+func RunWithMongoInDocker(m *testing.M) int {
 	c, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		panic(err)
@@ -68,6 +74,18 @@ func RunWithMongoInDocker(m *testing.M, mongoURI *string) int {
 	}
 
 	hostPort := inspRes.NetworkSettings.Ports[containerPort][0]
-	*mongoURI = fmt.Sprintf("mongodb://%s:%s", hostPort.HostIP, hostPort.HostPort)
+	mongoURI = fmt.Sprintf("mongodb://%s:%s", hostPort.HostIP, hostPort.HostPort)
 	return m.Run()
+}
+
+// NewClient creates a client connected to the mongo instance.
+func NewClient(c context.Context) (*mongo.Client, error) {
+	if mongoURI == "" {
+		return nil, fmt.Errorf("mongo uri not set. Please run RunWithMongoInDocker in TestMain")
+	}
+	return mongo.Connect(c, options.Client().ApplyURI(mongoURI))
+}
+
+func NewDefaultClient(c context.Context) (*mongo.Client, error) {
+	return mongo.Connect(c, options.Client().ApplyURI(defaultMongoURI))
 }
