@@ -1,3 +1,5 @@
+import { rental } from "../../service/proto_gen/rental/rental_pb"
+import { TripService } from "../../service/trip"
 import { constant } from "../../utils/constant"
 import { routing } from "../../utils/routing"
 
@@ -81,7 +83,17 @@ Page({
     this.isPageShowing = false
   },
 
-  onScanTap() {
+  async onScanTap() {
+    const trips = await TripService.GetTrips(rental.v1.TripStatus.IN_PROGRESS)
+    if ((trips.trips?.length || 0) > 0) {
+      await this.selectComponent('#tripModal').showModal()
+      wx.navigateTo({
+        url: routing.driving({
+          trip_id: trips.trips![0].id!,
+        })
+      })
+      return
+    }
     wx.scanCode({
       success: async () => {
         await this.selectComponent('#licModal').showModal()

@@ -1,3 +1,4 @@
+<wxs src="index.wxs" module="m1"></wxs>
 <view id="heading" class="pb-xs">
     <swiper indicator-dots circular class="w-full" style="height: 306rpx;">
         <swiper-item wx:for="{{promotionItems}}" wx:key="promotionID" bindtap="onPromotionItemTap" data-promotion-id="{{item.promotionID}}">
@@ -20,7 +21,7 @@
     </view>
 </view>
 <view class="flex bg-gray-100">
-    <swiper duration="500" display-multiple-items="{{navCount}}" vertical 
+    <swiper duration="500" display-multiple-items="{{navCount<=navItems.length?navCount:navItems.length}}" vertical 
     style="height:{{tripsHeight}}px" class="w-16 bg-white nav" current-item-id="{{navScroll}}">
         <swiper-item
          wx:for="{{navItems}}" wx:key="id" id="{{item.id}}" item-id="{{item.id}}"
@@ -59,15 +60,15 @@
                     </view>
                     <view wx:if="{{!item.data.inProgress}}" class="flex">
                         <view class="field pr-2">距</view>
-                        <view class="value text-black font-bold">{{item.data.distance}}</view>
+                        <view class="value text-black font-bold">{{m1.formatDistance(item.data.distance)}}</view>
                     </view>
                     <view wx:if="{{!item.data.inProgress}}" class="flex">
                         <view class="field pr-2">时</view>
-                        <view class="value text-black font-bold">{{item.data.duration}}</view>
+                        <view class="value text-black font-bold">{{m1.formatDuration(item.data.duration)}}</view>
                     </view>
                 </view>
                 <view wx:if="{{!item.data.inProgress}}" class="flex">
-                    <view class="italic text-2xl text-price font-bold">{{item.data.fee}}</view>
+                    <view class="italic text-2xl text-price font-bold">{{m1.formatFee(item.data.fee)}}</view>
                 </view>
             </view>
         </view>

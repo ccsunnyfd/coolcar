@@ -1,23 +1,35 @@
+import { ProfileService } from "../../service/profile"
+import { rental } from "../../service/proto_gen/rental/rental_pb"
 import { routing } from "../../utils/routing"
 
 Page({
   redirectURL: '',
+  profileRefresher: undefined as NodeJS.Timer | undefined,
   data: {
     name: '' as string,
     licNo: '' as string,
     gender: {
-      items: ['未知', '男', '女', '其他'],
+      items: ['未知', '男', '女'],
       genderIndex: 0,
       showGenderPicker: false,
     },
     date: {
       minDate: -315648000000 as number,
       maxDate: 1956499200000 as number,
-      curDate: undefined as Date | undefined,
+      curDate: new Date().valueOf() as number,
       showDatePicker: false,
     },
     licImgURL: '' as string,
-    state: 'UNSUBMITTED' as 'UNSUBMITTED' | 'PENDING' | 'VERIFIED' | 'UNVERIFIED',
+    state: rental.v1.IdentityStatus[rental.v1.IdentityStatus.UNSUBMITTED],
+  },
+  renderProfile(p: rental.v1.IProfile) {
+    this.setData({
+      licNo: p.Identity?.licNumber || '',
+      name: p.Identity?.name || '',
+      "gender.genderIndex": p.Identity?.gender || 0,
+      "date.curDate": p.Identity?.birthDateMillis || new Date().valueOf(),
+      state: rental.v1.IdentityStatus[p.identityStatus || 0],
+    })
   },
   onLoad(opt: Record<'redirect', string>) {
     const o: routing.RegisterOpts = opt
@@ -27,10 +39,14 @@ Page({
     let cur = new Date(), minDate = new Date()
     minDate.setFullYear(cur.getFullYear() - 60)
     this.setData({
-      'date.curDate': cur.valueOf(),
       'date.minDate': minDate.valueOf(),
       'date.maxDate': cur.valueOf(),
     })
+
+    ProfileService.GetProfile().then(p => {
+      this.renderProfile(p)
+    })
+
   },
   onUploadLic() {
     if (!this.canModify()) {
@@ -98,27 +114,47 @@ Page({
     })
   },
   onSubmit() {
-    this.setData({
-      state: 'PENDING',
+    ProfileService.SubmitProfile({
+      licNumber: this.data.licNo,
+      name: this.data.name,
+      gender: this.data.gender.genderIndex,
+      birthDateMillis: this.data.date.curDate?.valueOf(),
+    }).then(p => {
+      this.renderProfile(p)
+      this.scheduleProfileRefresher()
     })
-    setTimeout(() => {
-      this.onLicVerified()
-    }, 3000)
+  },
+  onUnload() {
+    this.clearProfileRefresher()
+  },
+  scheduleProfileRefresher() {
+    this.profileRefresher = setInterval(() => {
+      ProfileService.GetProfile().then(p => {
+        this.renderProfile(p)
+        if (p.identityStatus !== rental.v1.IdentityStatus.PENDING) {
+          this.clearProfileRefresher()
+        }
+        if (p.identityStatus === rental.v1.IdentityStatus.VERIFIED) {
+          this.onLicVerified()
+        }
+      })
+    }, 1000)
+  },
+  clearProfileRefresher() {
+    if (this.profileRefresher) {
+      clearInterval(this.profileRefresher)
+      this.profileRefresher = undefined
+    }
   },
   onLicVerified() {
-    this.setData({
-      state: 'VERIFIED',
-    })
-    if (this.redirectURL) {
-      setTimeout(() => {
-        wx.redirectTo({
-          url: this.redirectURL,
-        })
-      }, 2000)
-    }
+    // if (this.redirectURL) {
+    //   wx.redirectTo({
+    //     url: this.redirectURL,
+    //   })
+    // }
   },
   canModify() {
     const { state } = this.data
-    return state === 'UNSUBMITTED' || state === 'UNVERIFIED'
+    return state === rental.v1.IdentityStatus[rental.v1.IdentityStatus.UNSUBMITTED] || state === rental.v1.IdentityStatus[rental.v1.IdentityStatus.UNVERIFIED]
   },
 })

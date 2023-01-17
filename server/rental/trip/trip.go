@@ -137,7 +137,7 @@ func (s *Service) GetTrips(c context.Context, req *rentalpb.GetTripsRequest) (*r
 func (s *Service) UpdateTrip(c context.Context, req *rentalpb.UpdateTripRequest) (*rentalpb.Trip, error) {
 	aid, err := auth.AccountIDFromContext(c)
 	if err != nil {
-		return nil, status.Error(codes.Unauthenticated, "")
+		return nil, err
 	}
 	tid := id.TripID(req.Id)
 	tr, err := s.Mongo.GetTrip(c, tid, aid)

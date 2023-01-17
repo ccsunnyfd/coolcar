@@ -1,3 +1,4 @@
+import { ProfileService } from "../../service/profile"
 import { rental } from "../../service/proto_gen/rental/rental_pb"
 import { TripService } from "../../service/trip"
 import { constant } from "../../utils/constant"
@@ -8,9 +9,9 @@ interface Trip {
   shortId: string
   start: string
   end: string
-  duration: string
-  fee: string
-  distance: string
+  duration: number
+  fee: number
+  distance: number
   status: string
   inProgress: boolean
 }
@@ -37,6 +38,18 @@ interface MainItemQueryResult {
   }
 }
 
+const tripStatusMap = new Map([
+  [rental.v1.TripStatus.IN_PROGRESS, '进行中'],
+  [rental.v1.TripStatus.FINISHED, '已完成'],
+])
+
+const licStatusMap = new Map([
+  [rental.v1.IdentityStatus.UNSUBMITTED, '未认证'],
+  [rental.v1.IdentityStatus.PENDING, '未认证'],
+  [rental.v1.IdentityStatus.VERIFIED, '已认证'],
+  [rental.v1.IdentityStatus.UNVERIFIED, '认证未通过'],
+])
+
 Page({
   scrollStates: {
     mainItems: [] as MainItemQueryResult[],
@@ -45,6 +58,7 @@ Page({
   layoutResolver: undefined as (() => void) | undefined,
 
   data: {
+    licStatus: licStatusMap.get(rental.v1.IdentityStatus.UNSUBMITTED),
     promotionItems: [
       {
         img: 'https://img.mukewang.com/5f7301d80001fdee18720764.jpg',
@@ -74,16 +88,21 @@ Page({
   },
 
   async onLoad() {
-    this.populateTrips()
-
-    await TripService.GetTrips(rental.v1.TripStatus.FINISHED)
+    const trips = await TripService.GetTrips()
+    this.populateTrips(trips.trips!)
 
     const avatarUrl = wx.getStorageSync(constant.avatarUrlKey)
     this.setData({
       avatarUrl: avatarUrl || '',
     })
   },
-
+  onShow() {
+    ProfileService.GetProfile().then(p => {
+      this.setData({
+        licStatus: licStatusMap.get(p.identityStatus || 0),
+      })
+    })
+  },
   onReady() {
     wx.createSelectorQuery().select('#heading')
       .boundingClientRect(rect => {
@@ -95,28 +114,38 @@ Page({
       }).exec()
   },
 
-  populateTrips() {
+  populateTrips(trips: rental.v1.ITripEntity[]) {
     const mainItems: MainItem[] = []
     const navItems: NavItem[] = []
     let navSel = ''
     let prevNav = ''
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < trips.length; i++) {
+      const trip = trips[i]
       const mainId = 'main-' + i
       const navId = 'nav-' + i
+      const shortId = trip.id?.substr(trip.id.length - 6)
       if (!prevNav) {
         prevNav = navId
       }
 
       const tripData: Trip = {
-        id: 't-' + i,
-        shortId: '****' + i,
-        start: '保定',
-        end: '石家庄',
-        distance: '3000公里',
-        duration: '5小时',
-        fee: '17.34',
-        status: i%2==0?'进行中':'已完成',
-        inProgress: i%3==0?true:false,
+        id: trip.id!,
+        shortId: '*****' + shortId,
+        start: trip.trip?.start?.poiName || '未知',
+        end: '',
+        distance: 0,
+        duration: 0,
+        fee: 0,
+        status: tripStatusMap.get(trip.trip?.status!) || '未知',
+        inProgress: trip.trip?.status === rental.v1.TripStatus.IN_PROGRESS,
+      }
+
+      const end = trip.trip?.end
+      if (end) {
+        tripData.end = end.poiName || '未知'
+        tripData.distance = end.kmDriven || 0
+        tripData.fee = end.feeCent || 0
+        tripData.duration = (end.timestampSec || 0) - (trip.trip?.start?.timestampSec || 0)
       }
 
       mainItems.push({
@@ -134,6 +163,14 @@ Page({
         navSel = navId
       }
       prevNav = navId
+    }
+
+    for (let i = 0; i < this.data.navCount - 1; i++) {
+      navItems.push({
+        id: '',
+        mainId: '',
+        label: '',
+      })
     }
 
     this.setData({
